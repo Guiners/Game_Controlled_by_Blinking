@@ -12,6 +12,8 @@ pygame.display.set_caption("First Game")
 pygame.mixer.music.load('Game/pigula.mp3')
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
+font1 = pygame.font.SysFont("comicsansms", 180)
+
 
 #czas/fps
 clock = pygame.time.Clock()
@@ -30,7 +32,7 @@ class Hero:
     def __init__(self):
 
         self.x = 5
-        self.y = 600
+        self.y = 700
         self.object_width = 80
         self.object_height = 90
         self.velx = 0
@@ -40,7 +42,7 @@ class Hero:
         self.up = False
         self.down = False
         self.hitbox = (self.x + 2, self.y + 2, 80, 90)
-        self.score = 1
+        self.score = 0
 
 
 
@@ -65,10 +67,6 @@ class Hero:
             screen.blit(walk_Down[0], (self.x, self.y))
             self.hitbox = (self.x + 2, self.y + 2, 90, 80)
 
-
-
-
-
         pygame.display.update()
         pygame.draw.rect(screen, (255,0,0), self.hitbox,2)
 #pojawiajace sie punkty
@@ -82,7 +80,6 @@ class Objekt:
         self.x = random.randint(0, screen_width - (3 * self.width))
         self.y = random.randint(0, screen_height - (3 * self.height))
         self.hitbox = (self.x, self.y, self.width, self.height)
-        self.punkty = 0
 
     def draww(self):
         pygame.draw.circle(self.screen,(255, 255, 10), (self.x, self.y), self.width, self.height)
@@ -99,11 +96,22 @@ class ObjektV2:
         self.x = random.randint(0, screen_width - 3 * self.width)
         self.y = random.randint(0, (screen_height - 3 * self.height))
         self.hitbox = (self.x, self.y, self.width, self.height)
-        self.punkty = 0
 
     def draww(self):
         pygame.draw.circle(self.screen,(255, 0, 0), (self.x, self.y), self.width, self.height)
         pygame.display.update()
+
+class End:
+    def __init__(self, screen):
+        self.screen = screen
+        self.text = font1.render("GAME OVER", True, (255, 255, 255))
+
+
+    def drawww(self):
+        screen.blit(self.text, (270, 200))
+        pygame.display.update()
+
+
 
 
 # main loop
@@ -113,6 +121,7 @@ point = Objekt(screen)
 super_point = ObjektV2(screen)
 maria = Hero()
 chance = random.random()
+end = End(screen)
 
 while run:
     clock.tick(32)
@@ -137,21 +146,32 @@ while run:
 
 
     #teleport przez ekran
-        if maria.x < 0 - maria.object_width:
-            maria.x = screen_width
-        elif maria.x > screen_width + maria.object_width:
-            maria.x = 0 - maria.object_width
-        elif maria.y < 0 - maria.object_height:
-            maria.y = screen_height
-        elif maria.y > screen_height + maria.object_height:
-            maria.y = 0 - maria.object_height
+        if maria.x < 0 - maria.object_width + 30:
+            maria.vely = 0
+            maria.velx = 0
+            end.drawww()
+
+        elif maria.x > screen_width - maria.object_width + 30:
+            maria.vely = 0
+            maria.velx = 0
+            end.drawww()
+
+        elif maria.y < 0 - maria.object_height + 30:
+            maria.vely = 0
+            maria.velx = 0
+            end.drawww()
+
+        elif maria.y > screen_height - maria.object_height + 30 :
+            maria.vely = 0
+            maria.velx = 0
+            end.drawww()
 
 
 
     #sterowanie
     keys =pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        maria.velx = -15
+        maria.velx = -10
         maria.vely = 0
         maria.left = True
         maria.right = False
@@ -159,7 +179,7 @@ while run:
         maria.down = False
 
     elif keys[pygame.K_RIGHT]:
-        maria.velx = 15
+        maria.velx = 10
         maria.vely = 0
         maria.left = False
         maria.right = True
@@ -168,7 +188,7 @@ while run:
 
 
     if keys[pygame.K_UP]:
-        maria.vely = -15
+        maria.vely = -10
         maria.velx = 0
         maria.left = False
         maria.right = False
@@ -176,16 +196,22 @@ while run:
         maria.down = False
 
     elif keys[pygame.K_DOWN]:
-        maria.vely = 15
+        maria.vely = 10
         maria.velx = 0
         maria.left = False
         maria.right = False
         maria.up = False
         maria.down = True
 
-    maria.y += maria.vely * (0.08 * maria.score)
-    maria.x += maria.velx * (0.08 * maria.score)
-    print(maria.vely * (0.08 * maria.score), maria.velx * (0.08 * maria.score))
+    if maria.velx > 0:
+        maria.x += maria.velx + maria.score
+    if maria.vely > 0:
+        maria.y += maria.vely + maria.score
+    if maria.velx < 0:
+        maria.x += maria.velx - maria.score
+    if maria.vely < 0:
+        maria.y += maria.vely - maria.score
+
 
     #wychodzenie z gierki
     for event in pygame.event.get():
