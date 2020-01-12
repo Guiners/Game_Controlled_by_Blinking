@@ -20,30 +20,32 @@ clock = pygame.time.Clock()
 
 #tekstury
 
-walk_Right = [pygame.image.load('Game/MR1.png')]
-walk_Left = [pygame.image.load('Game/ML1.png')]
-walk_Up = [pygame.image.load('Game/MU1.png')]
-walk_Down = [pygame.image.load('Game/MD1.png')]
+walk_Right = [pygame.image.load('Game/karoR.png')]
+walk_Left = [pygame.image.load('Game/karoL.png')]
+walk_Up = [pygame.image.load('Game/karoU.png')]
+walk_Down = [pygame.image.load('Game/karoD.png')]
 bg = pygame.image.load('Game/bgca.jpg')
-char = pygame.image.load('Game/MR1.png')
+char = pygame.image.load('Game/karoR.png')
 #postac
 
 class Hero:
     def __init__(self):
-
-        self.x = 5
-        self.y = 700
-        self.object_width = 80
-        self.object_height = 90
+            # if porusza sie do gory lub do dolu to rzeba odwrocic szerokosc z wysokoscia
+        self.x = 300
+        self.y = 500
+        self.object_width = 100
+        self.object_height = 167
         self.velx = 0
         self.vely = 0
         self.left = False
         self.right = False
         self.up = False
         self.down = False
-        self.hitbox = (self.x + 2, self.y + 2, 80, 90)
+        self.hitbox = (self.x + 2, self.y + 2, 100, 167)
         self.score = 0
-
+        self.circle = 0
+        self.blink = 0
+        self.end = 0
 
 
     def draw(self, screen):
@@ -53,19 +55,19 @@ class Hero:
 
         if self.left:
             screen.blit(walk_Left[0], (self.x, self.y))
-            self.hitbox = (self.x + 2, self.y + 2, 80, 90)
+            self.hitbox = (self.x + 2, self.y + 2, 100, 167)
 
         elif self.right:
             screen.blit(walk_Right[0], (self.x, self.y))
-            self.hitbox = (self.x + 2, self.y + 2, 80, 90)
+            self.hitbox = (self.x + 2, self.y + 2, 100, 167)
 
         elif self.up:
             screen.blit(walk_Up[0], (self.x, self.y))
-            self.hitbox = (self.x + 2, self.y + 2, 90, 80)
+            self.hitbox = (self.x + 2, self.y + 2, 100, 167)
 
         elif self.down:
             screen.blit(walk_Down[0], (self.x, self.y))
-            self.hitbox = (self.x + 2, self.y + 2, 90, 80)
+            self.hitbox = (self.x + 2, self.y + 2, 100, 167)
 
         pygame.display.update()
         pygame.draw.rect(screen, (255,0,0), self.hitbox,2)
@@ -145,63 +147,103 @@ while run:
 
 
 
-    #teleport przez ekran
+    #End Game
         if maria.x < 0 - maria.object_width + 30:
             maria.vely = 0
             maria.velx = 0
+            maria.end = 1
             end.drawww()
 
         elif maria.x > screen_width - maria.object_width + 30:
             maria.vely = 0
             maria.velx = 0
+            maria.end = 1
             end.drawww()
 
         elif maria.y < 0 - maria.object_height + 30:
             maria.vely = 0
             maria.velx = 0
+            maria.end = 1
             end.drawww()
 
         elif maria.y > screen_height - maria.object_height + 30 :
             maria.vely = 0
             maria.velx = 0
+            maria.end = 1
             end.drawww()
 
 
 
     #sterowanie
     keys =pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        maria.velx = -10
-        maria.vely = 0
-        maria.left = True
-        maria.right = False
-        maria.up = False
-        maria.down = False
+    if keys[pygame.K_SPACE]:
+        maria.blink = 1
+        if maria.blink == 1:
+           maria.circle += 1
+           print(maria.circle)
+           if maria.circle == 5:
+               maria.circle = 1
+               print(maria.circle)
 
-    elif keys[pygame.K_RIGHT]:
-        maria.velx = 10
-        maria.vely = 0
-        maria.left = False
-        maria.right = True
-        maria.up = False
-        maria.down = False
+#trzeba popracowac nad zdjeciami zeby ladnie wygladaly
+           if maria.circle == 1:
+               maria.right = True
+               maria.down = False
+               maria.left = False
+               maria.up = False
+               maria.blink = 0
+
+           elif maria.circle == 2:
+               maria.right = False
+               maria.down = True
+               maria.left = False
+               maria.up = False
+               maria.blink = 0
+
+           elif maria.circle == 3:
+               maria.right = False
+               maria.down = False
+               maria.left = True
+               maria.up = False
+               maria.blink = 0
+
+           elif maria.circle == 4:
+               maria.right = False
+               maria.down = False
+               maria.left = False
+               maria.up = True
+               maria.blink = 0
 
 
-    if keys[pygame.K_UP]:
-        maria.vely = -10
+    if maria.end == 0:
+        if maria.right == True:
+            maria.object_width = 100
+            maria.object_height = 167
+            maria.velx = 10
+            maria.vely = 0
+
+        elif maria.down == True:
+            maria.object_width = 167
+            maria.object_height = 100
+            maria.vely = 10
+            maria.velx = 0
+
+        elif maria.left == True:
+            maria.object_width = 100
+            maria.object_height = 167
+            maria.velx = -10
+            maria.vely = 0
+
+        elif maria.up == True:
+            maria.object_width = 167
+            maria.object_height = 100
+            maria.vely = -10
+            maria.velx = 0
+
+    else:
         maria.velx = 0
-        maria.left = False
-        maria.right = False
-        maria.up = True
-        maria.down = False
+        maria.vely = 0
 
-    elif keys[pygame.K_DOWN]:
-        maria.vely = 10
-        maria.velx = 0
-        maria.left = False
-        maria.right = False
-        maria.up = False
-        maria.down = True
 
     if maria.velx > 0:
         maria.x += maria.velx + maria.score
